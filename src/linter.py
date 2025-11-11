@@ -12,6 +12,7 @@ from src.errors import (
     script_is_empty,
     use_directive_is_incomplete,
     use_directive_invalid_target,
+    block_is_not_cascaded,
 )
 
 # ====================
@@ -36,31 +37,48 @@ def bbreak_blocks(blocks: pandas.DataFrame):
     return {uid: bbreak(blocks.iloc[uid]) for uid in range(len(blocks))}
 
 
-def lint(blocks: pandas.DataFrame) -> bool:
+def lint(blocks: pandas.DataFrame) -> None:
     """Lint all code blocks in a CIDEr script."""
     if blocks.empty:
         script_is_empty()
 
     n_blocks = len(blocks)
+
+    # L-000: Check if all blocks are closed and well-formed.
     for uid in range(n_blocks):
         block = blocks.iloc[uid]
+
         raw = block["raw"]
-        valid = block["is_valid"]
+        valid = block["closed"]
         ln = block["ln"]
 
         if uid == 0:
             try:
+                _lang: str
+                _dir: str
                 _dir, _lang = tuple_repr(raw)
                 _use_present = bool(_dir.lower() == "use")
                 if not _use_present:
                     use_directive_is_absent()
                 elif _use_present and not _lang:
                     use_directive_is_incomplete()
-                elif _use_present and _lang not in TARGETS:
-                    use_directive_invalid_target()
+                elif _use_present and _lang.lower() not in TARGETS:
+                    use_directive_invalid_target(_lang)
             except ValueError:
                 use_directive_is_absent()
 
         if not valid:
             block_is_invalid(uid, ln)
+
+    # L-001: Check if all blocks use cascaded statements on multilines.
+    for uid in range(n_blocks):
+        block = blocks.iloc[uid]
+        raw: str = block["raw"]
+        btype = block["type"]
+        if btype == 1:
+            lines = raw.split("\n")
+            for i in range(1, len(lines)):
+                if not lines[i].startswith(">>"):
+                    block_is_not_cascaded(uid, block["ln"], block["ln"] + i)
+
     print("[INFO] All linter checks passed.")

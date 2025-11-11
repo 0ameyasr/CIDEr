@@ -17,19 +17,19 @@ from src.structs import Block
 
 
 def get_cider_script(path: Path | str) -> Optional[str]:
-    """Fetch a `.cider` script at `path`."""
+    """Fetch a `.ci` script at `path`."""
     path = Path(path) if isinstance(path, str) else path
     if os.path.isfile(path):
-        if path.suffix == ".cider":
+        if path.suffix == ".ci":
             with open(path, "r") as script:
                 return script.read()
         else:
             raise ValueError(
-                f"Invalid file type at '{path}'. Expected a '.cider' script but got {f'{path.suffix}' or 'no extension'}."
+                f"Invalid file type at '{path}'. Expected a '.ci' script but got {f'`{path.suffix}`' or 'no extension'}."
             )
     elif os.path.isdir(path):
         raise IsADirectoryError(
-            f"The path '{path}' is a directory, not a '.cider' script."
+            f"The path '{path}' is a directory, not a '.ci' script."
         )
     else:
         raise FileNotFoundError(
@@ -43,6 +43,7 @@ def tuple_repr(line: str) -> tuple:
 
 
 def get_valid_targets(build_path: Path | str = "build.json") -> set:
+    """Get valid targets that can be abstracted by CIDEr based on the configuration."""
     with open(build_path, "r") as build:
         data = json.load(build)
         targets = data["targets"]

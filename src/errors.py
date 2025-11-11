@@ -24,34 +24,57 @@ def __err(msg: str):
     sys.exit(1)
 
 
+def __warn(msg: str):
+    print(msg)
+
+
 def script_is_empty():
     """ERR-000: Raise an error if the script itself is empty or has no recognizable blocks."""
-    __err(f"[ERR-000] Missing contents: This script has no recognizable CIDEr blocks.")
+    __err(
+        f"[L-000/ERR-000] Missing contents: This script has no recognizable CIDEr blocks."
+    )
 
 
 def use_directive_is_absent():
     """ERR-001: Raise an error if the first block (`uid = 0`) does not contain the `use` directive."""
     __err(
-        f"[ERR-001] Absent `use`: block #0 must assert the `use` directive for the target language."
+        f"[L-000/ERR-001] Absent `use`: block #1 must assert the `use` directive for the target language."
     )
 
 
 def use_directive_is_incomplete():
     """ERR-002: Raise an error if the first block (`uid=0`) contains the `use` directive but is incomplete."""
     __err(
-        f"[ERR-002] Incomplete `use`: block #0 asserts the `use` directive, but no target language is specified."
+        f"[L-000/ERR-002] Incomplete `use`: block #1 asserts the `use` directive, but no target language is specified."
     )
 
 
-def use_directive_invalid_target():
+def use_directive_invalid_target(target: str):
     """ERR-003: Raise an error if the first block (`uid=0`) contains the `use` directive but sources an invalid target."""
     __err(
-        f"[ERR-003] Invalid `use` target: block #0 asserts the `use` directive, but aims to source an invalid target not in : {TARGETS}."
+        f"[L-000/ERR-003] Invalid `use` target: block #1 asserts the `use` directive, but aims to source an invalid target `{target}` not in : {TARGETS}."
     )
 
 
 def block_is_invalid(uid: int, ln: int):
-    """ERR-003: Raise an error if block with `uid` is invalid."""
+    """L-000/ERR-004: Raise an error if block with `uid` is invalid."""
     __err(
-        f"[ERR-003] Invalid block #{uid} (Near line {ln}): this block is empty or has not been closed."
+        f"[L-000/ERR-004] Invalid block #{uid+1} (Near line {ln}): this block is empty or has not been closed."
     )
+
+
+def block_is_not_cascaded(uid: int, ln: int, eln: int):
+    """L-001/ERR-000: Raise an error if a multiline block is not cascaded correctly."""
+    __err(
+        f"[L-001/ERR-000] Out-of-Cascade line {eln} in block #{uid+1} (Near line {ln}): this belongs to a multi-line block that has not been cascaded correctly."
+    )
+
+
+# =====================
+# Warnings
+# =====================
+
+
+def warn_block_is_hidden(ln: int):
+    """L-000/WARN-000: Warn that any block starting at line `ln` will be ignored."""
+    __warn(f"[L-000/WARN-000] The block starting at line {ln} will be ignored.")

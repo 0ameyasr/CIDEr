@@ -11,6 +11,7 @@ from typing import Any
 
 from src.structs import Block
 from src.utils import get_cider_script
+from src.errors import warn_block_is_hidden
 
 # ====================
 # Parser
@@ -34,7 +35,7 @@ def _get_code_blocks(script: str) -> list[dict[str, Any]]:
 
             # Inline block statement
             if line.endswith("::") and len(line) > 2 and not line == "::":
-                blocks.append({"code": line.strip(), "ln": start_ln + 1})
+                blocks.append({"code": line.strip(), "ln": start_ln + 1, "type": 0})
                 continue
 
             # Multiline block
@@ -46,8 +47,14 @@ def _get_code_blocks(script: str) -> list[dict[str, Any]]:
                 ln += 1
 
             block_text = "\n".join(block_lines).strip()
-            blocks.append({"code": block_text, "ln": start_ln + 1})
+            blocks.append({"code": block_text, "ln": start_ln + 1, "type": 1})
             continue
+        elif (
+            ("::" in line)
+            and (not line.startswith("::"))
+            and (not line.startswith(">>"))
+        ):
+            warn_block_is_hidden(ln + 1)
 
         ln += 1
 
@@ -60,6 +67,6 @@ def chunk(path: Path | str):
     script = get_cider_script(path)
     blocks = _get_code_blocks(script)
     for i, item in enumerate(blocks):
-        block = Block(uid=i, code=item["code"], ln=item["ln"])
-        meta.append((block.raw, block.is_valid, block.ln))
-    return pandas.DataFrame(meta, columns=["raw", "is_valid", "ln"])
+        block = Block(uid=i, code=item["code"], ln=item["ln"], type=item["type"])
+        meta.append((block.code, block.raw, block.closed, block.ln, block.type))
+    return pandas.DataFrame(meta, columns=["code", "raw", "closed", "ln", "type"])
