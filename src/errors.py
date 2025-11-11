@@ -31,21 +31,21 @@ def __warn(msg: str):
 def script_is_empty():
     """ERR-000: Raise an error if the script itself is empty or has no recognizable blocks."""
     __err(
-        f"[L-000/ERR-000] Missing contents: This script has no recognizable CIDEr blocks."
+        "[L-000/ERR-000] Missing contents: This script has no recognizable CIDEr blocks."
     )
 
 
 def use_directive_is_absent():
     """ERR-001: Raise an error if the first block (`uid = 0`) does not contain the `use` directive."""
     __err(
-        f"[L-000/ERR-001] Absent `use`: block #1 must assert the `use` directive for the target language."
+        "[L-000/ERR-001] Absent `use`: block #1 must assert the `use` directive for the target language."
     )
 
 
 def use_directive_is_incomplete():
     """ERR-002: Raise an error if the first block (`uid=0`) contains the `use` directive but is incomplete."""
     __err(
-        f"[L-000/ERR-002] Incomplete `use`: block #1 asserts the `use` directive, but no target language is specified."
+        "[L-000/ERR-002] Incomplete `use`: block #1 asserts the `use` directive, but no target language is specified."
     )
 
 
@@ -67,6 +67,20 @@ def block_is_not_cascaded(uid: int, ln: int, eln: int):
     """L-001/ERR-000: Raise an error if a multiline block is not cascaded correctly."""
     __err(
         f"[L-001/ERR-000] Out-of-Cascade line {eln} in block #{uid+1} (Near line {ln}): this belongs to a multi-line block that has not been cascaded correctly."
+    )
+
+
+def subject_is_missing(uid: int, ln: int):
+    """L-001/ERR-001: Raise an error if a subject in a statement is missing."""
+    __err(
+        f"[L-001/ERR-001] Subject is unknown for a line in block #{uid+1} (Near line {ln}): this line uses the intent colon but is missing a subject."
+    )
+
+
+def intent_is_missing(uid: int, ln: int):
+    """L-001/ERR-002: Raise an error if intent in a statement is missing."""
+    __err(
+        f"[L-001/ERR-002] Intent is unknown for a line in block #{uid+1} (Near line {ln}): this line uses the intent colon but is missing any intent specifications."
     )
 
 

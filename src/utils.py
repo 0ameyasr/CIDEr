@@ -9,7 +9,7 @@ import json
 
 from pathlib import Path
 from typing import Optional
-from src.structs import Block
+from jinja2 import Template
 
 # ==================
 # Utilities
@@ -48,3 +48,17 @@ def get_valid_targets(build_path: Path | str = "build.json") -> set:
         data = json.load(build)
         targets = data["targets"]
         return set(targets)
+
+
+def bsplit(raw: str):
+    """Split a block by the presence of cascaded operators `>>`."""
+    return [stmnt.strip() for stmnt in raw.split(">>")]
+
+
+def get_prompt(task: str, **kwargs):
+    """Fetch a prompt from the /prompts/ directory."""
+    prompt: str
+    with open(f"prompts/{task}.jinja", "r") as prompt_buffer:
+        prompt = prompt_buffer.read()
+    template: Template = Template(prompt)
+    return template.render(**kwargs)

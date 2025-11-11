@@ -5,7 +5,7 @@
 # ====================
 
 import pandas
-from src.utils import tuple_repr, get_valid_targets
+from src.utils import tuple_repr, get_valid_targets, bsplit
 from src.errors import (
     use_directive_is_absent,
     block_is_invalid,
@@ -13,6 +13,8 @@ from src.errors import (
     use_directive_is_incomplete,
     use_directive_invalid_target,
     block_is_not_cascaded,
+    subject_is_missing,
+    intent_is_missing,
 )
 
 # ====================
@@ -80,5 +82,22 @@ def lint(blocks: pandas.DataFrame) -> None:
             for i in range(1, len(lines)):
                 if not lines[i].startswith(">>"):
                     block_is_not_cascaded(uid, block["ln"], block["ln"] + i)
+
+    # L-002: Check if all statements in the script are in correct format.
+    for uid in range(n_blocks):
+        block = blocks.iloc[uid]
+
+        btype = block["type"]
+        raw = block["raw"]
+        sln = block["ln"]
+        lines = bsplit(raw)
+
+        for line in lines:
+            if ":" in line:
+                subject, intent = line.split(":")
+                if not subject:
+                    subject_is_missing(uid, sln)
+                elif not intent:
+                    intent_is_missing(uid, sln)
 
     print("[INFO] All linter checks passed.")

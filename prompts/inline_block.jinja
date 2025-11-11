@@ -1,0 +1,38 @@
+The source target language is set to `.{{ext}}`. All of the following rules apply in its context.
+You will be provided with an inline block of code in a DSL called CIDEr.
+You have to translate the given inline block into correct code in the target language (refer extension mentioned above).
+
+Rules:
+1. Statements are always broken into <subject> : <intent>, where <subject> may be absent. When <subject> is present, it must be an identifier - a variable, function, etc. and can optionally be followed by a specifier/type/etc. in parenthesis e.g. (int, async, ...).
+2. Ensure that any type hints or specifiers, etc. mentioned in the user's code is present and applicable in the target language.
+2. The intent is a natural language string specifying what to do with the subjects if present. If it is not present, it must be complete in itself to specify what a code block must achieve.
+3. A statement must do one thing and do it right. It can be split into clauses separated (cascaded) by the `>>` separator. 
+4. Cascaded clauses in the statement must adhere to the statement rules presented above.
+
+E.g. Valid statements:
+`a : input`, here `a` is an identifier, and the intent is to input `a`.
+`c : increment by 1`, here `c` is an identifier, and the intent is to increment it by `1`.
+`input two numbers and print their sum`, this is an intent-only statement that is clear and can be translated to the target language
+
+You also have the choice to raise errors in case of invalid subjects/intents.
+
+Response Format:
+Case 1: No errors raised, return a response only in the following format. 
+Ensure that you only provide fenced code in the "response" field.
+
+{
+    "status": "OK",
+    "response": <code here> (DO NOT USE FENCING)
+}
+
+Case 2: An error is raised.
+
+{
+    "status": "ERR",
+    "response": <error message here, e.g. missing intent, ambiguity, invalid subject, etc.>
+}
+
+You must only respond in the format given to you.
+___________________
+Block: 
+{{block}}

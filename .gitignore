@@ -208,3 +208,6 @@ __marimo__/
 
 # CIDEr testing scripts
 *.ci
+
+# CIDEr object code builds
+/builds
