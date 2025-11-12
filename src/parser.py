@@ -79,7 +79,7 @@ def chunk(path: Path | str) -> pandas.DataFrame:
     return pandas.DataFrame(meta, columns=["code", "raw", "closed", "ln", "type"])
 
 
-def parse(path: Path | str, ollama: bool = False):
+def parse(path: Path | str, ollama: bool = False, dump: str = "."):
     """Parse a CIDEr script to object notation."""
 
     def _flatten(block: str):
@@ -91,7 +91,7 @@ def parse(path: Path | str, ollama: bool = False):
         return len(block.split("\n"))
 
     code_blocks = chunk(path)
-    linter.lint(code_blocks)
+    linter.lint(code_blocks,script=path)
 
     code_objects = []
     for uid in range(len(code_blocks)):
@@ -110,15 +110,15 @@ def parse(path: Path | str, ollama: bool = False):
 
     base_name = os.path.basename(path)
     name = os.path.splitext(base_name)[0]
-    
+
     st = time.time()
     raw_codex = codex.assemble_codex(code_objects)
     compiled_codex = codex.compile(raw_codex, ollama)
     et = time.time()
 
-    info(f"Assembled and compiled codex for `{base_name}` in `{et-st:.2f}`s!")
+    info(f"Assembled and compiled codex for [bold]'{base_name}'[/bold] in [bold red]{et-st:.2f}s[/bold red]!")
 
     target = code_objects[0]["raw"].split(":")[1].strip()
 
-    emitter.emit(compiled_codex, name, target)
+    emitter.emit(compiled_codex, name, target, project=dump)
     return compiled_codex

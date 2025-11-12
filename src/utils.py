@@ -65,17 +65,37 @@ def get_prompt(task: str, **kwargs):
     template: Template = Template(prompt)
     return template.render(**kwargs)
 
+def is_dir_empty(path: str) -> bool:
+    """Check if a directory is empty."""
+    with os.scandir(path) as entries:
+        for _ in entries:
+            return False
+    return True
+
+def has_files_with_extension(directory: str, extension: str) -> int:
+    """Check if files with a certain extension are present in the directory."""
+    count = 0
+    dir_path = Path(directory)
+    for entry in dir_path.iterdir():
+        if entry.is_file() and entry.suffix.lower() == extension.lower():
+            count += 1
+    return count
+
+
 # ==================
 # Print Utilities
 # ==================
+
 
 def err(msg: str):
     """Print an error message."""
     print(f"[bold red][ERR][/bold red] {msg}", file=sys.stderr)
 
+
 def info(msg: str):
     """Print an informative message."""
     print(f"[bold blue][INFO][/bold blue] {msg}")
+
 
 def warn(msg: str):
     """Print a warning."""

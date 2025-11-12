@@ -5,6 +5,7 @@
 # ====================
 
 import pandas
+from pathlib import Path
 from src.utils import tuple_repr, get_valid_targets, bsplit, info
 from src.errors import (
     use_directive_is_absent,
@@ -39,7 +40,7 @@ def bbreak_blocks(blocks: pandas.DataFrame):
     return {uid: bbreak(blocks.iloc[uid]) for uid in range(len(blocks))}
 
 
-def lint(blocks: pandas.DataFrame) -> None:
+def lint(blocks: pandas.DataFrame, script: str) -> None:
     """Lint all code blocks in a CIDEr script."""
     if blocks.empty:
         script_is_empty()
@@ -100,4 +101,4 @@ def lint(blocks: pandas.DataFrame) -> None:
                 elif not intent:
                     intent_is_missing(uid, sln)
 
-    info("All linter checks passed.")
+    info(f"All linter checks passed for [bold]'{Path(script)}'[/bold]")

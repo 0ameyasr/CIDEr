@@ -96,4 +96,6 @@ def compilation_error(msg: str):
 
 def warn_block_is_hidden(ln: int):
     """L-000/WARN-000: Warn that any block starting at line `ln` will be ignored."""
-    __warn(f"[bold][L-000/WARN-000][/bold] The block starting at line {ln} will be ignored.")
+    __warn(
+        f"[bold][L-000/WARN-000][/bold] The block starting at line {ln} will be ignored."
+    )
