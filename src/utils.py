@@ -65,12 +65,14 @@ def get_prompt(task: str, **kwargs):
     template: Template = Template(prompt)
     return template.render(**kwargs)
 
+
 def is_dir_empty(path: str) -> bool:
     """Check if a directory is empty."""
     with os.scandir(path) as entries:
         for _ in entries:
             return False
     return True
+
 
 def has_files_with_extension(directory: str, extension: str) -> int:
     """Check if files with a certain extension are present in the directory."""

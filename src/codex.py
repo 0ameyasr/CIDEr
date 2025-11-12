@@ -53,3 +53,9 @@ def compile(codex: str, ollama: bool = False):
     payload = get_prompt("compile", codex=codex)
     response = generate_ollama(payload) if ollama else generate_gemini(payload)
     return response
+
+def optimize(code: str, ollama: bool = False):
+    """Optimize the 1st norm compiled code into a 2nd norm form."""
+    payload = get_prompt("optimize", code=code)
+    response = generate_ollama(payload) if ollama else generate_gemini(payload)
+    return response

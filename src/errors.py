@@ -59,28 +59,28 @@ def use_directive_invalid_target(target: str):
 def block_is_invalid(uid: int, ln: int):
     """L-000/ERR-004: Raise an error if block with `uid` is invalid."""
     __err(
-        f"[bold][L-000/ERR-004][/bold] Invalid block #{uid+1} (Near line {ln}): this block is empty or has not been closed."
+        f"[bold][L-000/ERR-004][/bold] Invalid block #{uid + 1} (Near line {ln}): this block is empty or has not been closed."
     )
 
 
 def block_is_not_cascaded(uid: int, ln: int, eln: int):
     """L-001/ERR-000: Raise an error if a multiline block is not cascaded correctly."""
     __err(
-        f"[bold][L-001/ERR-000][/bold] Out-of-Cascade line {eln} in block #{uid+1} (Near line {ln}): this belongs to a multi-line block that has not been cascaded correctly."
+        f"[bold][L-001/ERR-000][/bold] Out-of-Cascade line {eln} in block #{uid + 1} (Near line {ln}): this belongs to a multi-line block that has not been cascaded correctly."
     )
 
 
 def subject_is_missing(uid: int, ln: int):
     """L-001/ERR-001: Raise an error if a subject in a statement is missing."""
     __err(
-        f"[bold][L-001/ERR-001][/bold] Subject is unknown for a line in block #{uid+1} (Near line {ln}): this line uses the intent colon but is missing a subject."
+        f"[bold][L-001/ERR-001][/bold] Subject is unknown for a line in block #{uid + 1} (Near line {ln}): this line uses the intent colon but is missing a subject."
     )
 
 
 def intent_is_missing(uid: int, ln: int):
     """L-001/ERR-002: Raise an error if intent in a statement is missing."""
     __err(
-        f"[bold][L-001/ERR-002][/bold] Intent is unknown for a line in block #{uid+1} (Near line {ln}): this line uses the intent colon but is missing any intent specifications."
+        f"[bold][L-001/ERR-002][/bold] Intent is unknown for a line in block #{uid + 1} (Near line {ln}): this line uses the intent colon but is missing any intent specifications."
     )
 
 

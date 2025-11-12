@@ -6,14 +6,16 @@
 
 import re
 import os
+import sys
 import time
+import json
 import pandas
 
 from pathlib import Path
 from typing import Any
 
 from src.structs import Block
-from src.utils import get_cider_script, info
+from src.utils import get_cider_script, info, err, info, warn
 from src.errors import warn_block_is_hidden, compilation_error
 
 import src.linter as linter
@@ -91,7 +93,7 @@ def parse(path: Path | str, ollama: bool = False, dump: str = "."):
         return len(block.split("\n"))
 
     code_blocks = chunk(path)
-    linter.lint(code_blocks,script=path)
+    linter.lint(code_blocks, script=path)
 
     code_objects = []
     for uid in range(len(code_blocks)):
@@ -116,9 +118,54 @@ def parse(path: Path | str, ollama: bool = False, dump: str = "."):
     compiled_codex = codex.compile(raw_codex, ollama)
     et = time.time()
 
-    info(f"Assembled and compiled codex for [bold]'{base_name}'[/bold] in [bold red]{et-st:.2f}s[/bold red]!")
+    info(
+        f"Assembled and compiled codex for [bold]'{base_name}'[/bold] in [bold red]{et - st:.2f}s[/bold red]!"
+    )
+    
+    if not compiled_codex:
+        err("Empty or null compiled codex provided.")
+        return False
 
+    try:
+        compiled_codex_obj = (
+            compiled_codex
+            if isinstance(compiled_codex, dict)
+            else json.loads(compiled_codex)
+        )
+    except json.JSONDecodeError as e:
+        err(f"Invalid JSON for compiled_codex: {e}")
+        return False
+
+    status = compiled_codex_obj.get("status")
+    response = compiled_codex_obj.get("response")
+
+    if status is None or response is None:
+        err("Compiled codex missing 'status' or 'response' fields.")
+        warn(f"Received keys: {list(compiled_codex_obj.keys())}")
+        return False
+
+    if status != "OK":
+        err("Codex compilation failed:")
+        print(response)
+        return False
+    
+    st = time.time()
+    code = response
+    optimized_code_obj : dict = codex.optimize(code, ollama)
+    et = time.time()
+
+    info(f"Optimized codex for [bold]'{base_name}'[/bold] in [bold red]{et - st:.2f}s[/bold red]!")
+    
     target = code_objects[0]["raw"].split(":")[1].strip()
 
-    emitter.emit(compiled_codex, name, target, project=dump)
+    if not optimized_code_obj:
+        err("Optimization failed.")
+        sys.exit(1)
+    
+    optimized_code = json.loads(optimized_code_obj).get("code")
+    if not optimized_code:
+        err("Missing code in optimization response!")
+        sys.exit(1)
+        
+    emitter.emit(optimized_code, name, target, project=dump)
     return compiled_codex

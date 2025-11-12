@@ -26,10 +26,14 @@ def main():
         "--ollama", action="store_true", help="Use an Ollama model (optional)"
     )
     args = parser_cli.parse_args()
-    
+
     if args.ollama:
-        warn(f"You're using an Ollama model, specifically [bold]'{OLLAMA_MODEL_NAME}'[/bold] - expect compilation time to scale with avaiable compute.")
-        warn(f"Small Ollama (local) models are also riskier to work with. Please re-check compiled target code before deployment.")
+        warn(
+            f"You're using an Ollama model, specifically [bold]'{OLLAMA_MODEL_NAME}'[/bold] - expect compilation time to scale with available compute."
+        )
+        warn(
+            f"Small Ollama (local) models are also riskier to work with. Please re-check compiled target code before deployment."
+        )
 
     path = Path(args.path)
     if path.is_dir():
@@ -42,19 +46,31 @@ def main():
                 f"Found a [bold]'.cider'[/bold] subdirectory under path [bold]'{Path(path)}'[/bold]... checking for nested source files."
             )
             if is_dir_empty(cider_dir):
-                err(f"The [bold red]CIDEr[/bold red] source directory [bold](.cider)[/bold] is empty!")
+                err(
+                    f"The [bold red]CIDEr[/bold red] source directory [bold](.cider)[/bold] is empty!"
+                )
                 sys.exit(1)
             else:
-                count = has_files_with_extension(cider_dir,".ci")
+                count = has_files_with_extension(cider_dir, ".ci")
                 if count > 0:
-                    info(f"Found {count} [bold red]CIDEr[/bold red] source {'files' if count > 1 else 'file'}... preparing to compile {'them' if count > 1 else 'it'}.")
-                    for file in os.listdir(cider_dir):
-                        info(f"Compiling [bold]'{Path(file)}'[/bold]...")
+                    info(
+                        f"Found {count} [bold red]CIDEr[/bold red] source {'files' if count > 1 else 'file'}... preparing to compile {'them' if count > 1 else 'it'}."
+                    )
+                    for i,file in enumerate(os.listdir(cider_dir)):
+                        info(f"#{i+1} Compiling [bold]'{Path(file)}'[/bold]...")
                         if file.endswith(".ci"):
-                            parser.parse(f"{Path(cider_dir/Path(file))}", ollama=args.ollama, dump=path)
-                    info(f"Compiled all source files in [bold]'{Path(cider_dir)}'[/bold]!")
+                            parser.parse(
+                                f"{Path(cider_dir / Path(file))}",
+                                ollama=args.ollama,
+                                dump=path,
+                            )
+                    info(
+                        f"Compiled all source files in [bold]'{Path(cider_dir)}'[/bold]!"
+                    )
                 else:
-                    err(f"The [bold]'.cider'[/bold] directory exists but has no [bold red]CIDEr[/bold red] source files.")
+                    err(
+                        f"The [bold]'.cider'[/bold] directory exists but has no [bold red]CIDEr[/bold red] source files."
+                    )
                     sys.exit(1)
         else:
             err(
