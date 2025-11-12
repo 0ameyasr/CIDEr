@@ -1,12 +1,20 @@
 """Turns CIDEr script code blocks into object notation (JSON-only conversation)."""
 
+import os
+
 from google import genai
+from ollama import chat
+from dotenv import load_dotenv
+
 from src.utils import get_prompt
 
-GEMINI_MODEL_NAME = "gemini-2.0-flash"
+load_dotenv()
+GEMINI_MODEL_NAME = os.getenv("GEMINI_MODEL_NAME")
+OLLAMA_MODEL_NAME = os.getenv("OLLAMA_MODEL_NAME")
 
 
-def generate(request: str):
+def generate_gemini(request: str):
+    """Generate a response for `request` using a Gemini model."""
     client = genai.Client()
     response = client.models.generate_content(
         model=GEMINI_MODEL_NAME,
@@ -18,7 +26,18 @@ def generate(request: str):
     return response
 
 
+def generate_ollama(request: str):
+    """Generate a response for `request` using an Ollama model."""
+    response = chat(
+        model=OLLAMA_MODEL_NAME,
+        format="json",
+        messages=[{"role": "user", "content": request}],
+    )
+    return response.message.content
+
+
 def assemble_codex(code_objects: list):
+    """Assemble the codex representation for a list of code-objects."""
     codex = f"Use `.{code_objects[0]['raw'].split(':')[1].strip()}`\n"
     for i in range(1, len(code_objects)):
         block = code_objects[i]
@@ -29,7 +48,8 @@ def assemble_codex(code_objects: list):
     return codex
 
 
-def compile(codex: str):
+def compile(codex: str, ollama: bool = False):
+    """Compile the codex object using the configured model."""
     payload = get_prompt("compile", codex=codex)
-    response = generate(payload)
+    response = generate_ollama(payload) if ollama else generate_gemini(payload)
     return response

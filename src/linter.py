@@ -5,7 +5,7 @@
 # ====================
 
 import pandas
-from src.utils import tuple_repr, get_valid_targets, bsplit
+from src.utils import tuple_repr, get_valid_targets, bsplit, info
 from src.errors import (
     use_directive_is_absent,
     block_is_invalid,
@@ -94,10 +94,10 @@ def lint(blocks: pandas.DataFrame) -> None:
 
         for line in lines:
             if ":" in line:
-                subject, intent = line.split(":")
+                subject, intent = line.split(":", 1)
                 if not subject:
                     subject_is_missing(uid, sln)
                 elif not intent:
                     intent_is_missing(uid, sln)
 
-    print("[INFO] All linter checks passed.")
+    info("All linter checks passed.")

@@ -6,14 +6,14 @@
 
 import re
 import os
-import json
+import time
 import pandas
 
 from pathlib import Path
 from typing import Any
 
 from src.structs import Block
-from src.utils import get_cider_script
+from src.utils import get_cider_script, info
 from src.errors import warn_block_is_hidden, compilation_error
 
 import src.linter as linter
@@ -79,7 +79,7 @@ def chunk(path: Path | str) -> pandas.DataFrame:
     return pandas.DataFrame(meta, columns=["code", "raw", "closed", "ln", "type"])
 
 
-def parse(path: Path | str):
+def parse(path: Path | str, ollama: bool = False):
     """Parse a CIDEr script to object notation."""
 
     def _flatten(block: str):
@@ -108,13 +108,17 @@ def parse(path: Path | str):
             }
         )
 
-    raw_codex = codex.assemble_codex(code_objects)
-    compiled_codex = codex.compile(raw_codex)
-    
-    target = code_objects[0]["raw"].split(":")[1].strip()
-    
     base_name = os.path.basename(path)
     name = os.path.splitext(base_name)[0]
     
+    st = time.time()
+    raw_codex = codex.assemble_codex(code_objects)
+    compiled_codex = codex.compile(raw_codex, ollama)
+    et = time.time()
+
+    info(f"Assembled and compiled codex for `{base_name}` in `{et-st:.2f}`s!")
+
+    target = code_objects[0]["raw"].split(":")[1].strip()
+
     emitter.emit(compiled_codex, name, target)
     return compiled_codex

@@ -5,11 +5,13 @@
 # ==================
 
 import os
+import sys
 import json
 
 from pathlib import Path
 from typing import Optional
 from jinja2 import Template
+from rich import print
 
 # ==================
 # Utilities
@@ -62,3 +64,19 @@ def get_prompt(task: str, **kwargs):
         prompt = prompt_buffer.read()
     template: Template = Template(prompt)
     return template.render(**kwargs)
+
+# ==================
+# Print Utilities
+# ==================
+
+def err(msg: str):
+    """Print an error message."""
+    print(f"[bold red][ERR][/bold red] {msg}", file=sys.stderr)
+
+def info(msg: str):
+    """Print an informative message."""
+    print(f"[bold blue][INFO][/bold blue] {msg}")
+
+def warn(msg: str):
+    """Print a warning."""
+    print(f"[bold yellow][WARN][/bold yellow] {msg}")
