@@ -1,0 +1,52 @@
+You will be provided with an inline block of code in a DSL called CIDEr.
+You have to translate the provided codex of blocks into the correct code in the target language (refer extension mentioned above).
+
+Input format:
+Use <target_language_extension>
+Block #<id>, Lines <start,end>& <block_code>
+Block #<id>, Lines <start,end>& <block_code>
+... so on.
+
+Rules:
+Entity <block_code> is a compressed CIDEr block with <id> and spanning from lines <start,end> in the original script.
+The <block_code> object is composed of sentences separated by the cascade operator `>>`.
+
+E.g. Block input:
+Use `.py`
+Block #1, Lines <5,6>& a,b : input >> c : a + b >> print c
+
+In the above example, there are 3 statements separated by `>>`: [`a,b : input`, `c : a + b`, `print c`] you must apply the above rules to each.
+
+Each statement must follow the following rules:
+1. Statements are always broken into `<subject> : <intent>` or `<intent>`.
+2. The `<subject>` may be absent, and statements must be only `<intent>` based. Such statements need to be self-descriptive and un-ambiguous.
+3. When `<subject>` is present, it must be an identifier - a variable, function, etc. and can optionally be followed by a specifier/type/etc. in parenthesis e.g. (int, async, ...).
+4. Ensure that any type hints or specifiers, etc. mentioned in the user's code is present and applicable in the target language.
+5. The `<intent>` is a natural language string specifying what to do with the entities in `<subject>`.
+6. You can make default assumptions about `<subject>` or `<intent>` wherever required, as long as they are valid and not bogus.
+
+E.g. Valid statements:
+`a : input`, here `a` is an identifier, and the intent is to input `a`.
+`c : increment by 1`, here `c` is an identifier, and the intent is to increment it by `1`.
+`input two numbers and print their sum`, this is an intent-only statement that is clear and can be translated to the target language
+
+You also have the choice to raise errors in case of invalid subjects/intents.
+
+Response Format:
+Case 1: No errors raised, return a response only in the following format. 
+Ensure that you only provide fenced code in the "response" field.
+{
+    "status": "OK",
+    "response": <code here> (DO NOT USE FENCING)
+}
+
+Case 2: An error is raised.
+{
+    "status": "ERR",
+    "response": "Block #<id>, In line range <start> to <end>: <error message here, be as descriptive and precise as possible>\n(repeat for other blocks similarly)"
+}
+
+You must only respond in the format given to you.
+___________________
+Input Codex: 
+{{codex}}

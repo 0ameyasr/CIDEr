@@ -18,7 +18,18 @@ def generate(request: str):
     return response
 
 
-def inline_block(target: str, block: str):
-    payload = get_prompt("inline_block", ext=target, block=block)
+def assemble_codex(code_objects: list):
+    codex = f"Use `.{code_objects[0]['raw'].split(':')[1].strip()}`\n"
+    for i in range(1, len(code_objects)):
+        block = code_objects[i]
+        buid = block["uid"]
+        raw = block["raw"]
+        sln, eln = block["span"]
+        codex += f"Block #{buid}, Lines <{sln},{eln}>& {raw}\n"
+    return codex
+
+
+def compile(codex: str):
+    payload = get_prompt("compile", codex=codex)
     response = generate(payload)
     return response

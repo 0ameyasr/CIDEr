@@ -1,12 +1,15 @@
 """Translates CIDEr object code notation to target languages."""
+
 import json
 
-def emit(codex_blocks: list):
-    for obj in codex_blocks:
-        codex = json.loads(obj['codex'])
-        response = codex['response']
-        if codex['status'] == "OK":
-            print(response)
-        else:
-            print(obj, response)
-            break
+
+def emit(compiled_codex: dict, name: str, target: str, project: str = "builds"):
+    compiled_codex_obj = json.loads(compiled_codex)
+    status = compiled_codex_obj["status"]
+    response = compiled_codex_obj["response"]
+
+    if status == "OK":
+        with open(f"{project}/{name}.{target}", "w") as buffer:
+            buffer.write(response)
+    else:
+        print(response)

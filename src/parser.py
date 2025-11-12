@@ -5,6 +5,8 @@
 # ====================
 
 import re
+import os
+import json
 import pandas
 
 from pathlib import Path
@@ -12,7 +14,7 @@ from typing import Any
 
 from src.structs import Block
 from src.utils import get_cider_script
-from src.errors import warn_block_is_hidden
+from src.errors import warn_block_is_hidden, compilation_error
 
 import src.linter as linter
 import src.codex as codex
@@ -22,7 +24,6 @@ import src.emitter as emitter
 # Parser
 # ====================
 
-TARGET = "py"
 
 def _get_code_blocks(script: str) -> list[dict[str, Any]]:
     """Parse script into code blocks safely, including malformed/unclosed ones."""
@@ -107,17 +108,13 @@ def parse(path: Path | str):
             }
         )
 
-    codex_objects = []
-    for idx in range(1,len(code_objects)):
-        code_object = code_objects[idx]
-        raw_block_code = code_object['raw']
-        codex_objects.append({
-            "uid": code_object['uid'],
-            "codex": codex.inline_block(target=TARGET,block=raw_block_code)
-        })
-        print(f"Compiled codex #{idx}/{len(code_objects)-1}...")
-    print("Codex compilation complete.")
-
-    print("Emitting all codex objects..")
-    emitter.emit(codex_objects)
-    return codex_objects
+    raw_codex = codex.assemble_codex(code_objects)
+    compiled_codex = codex.compile(raw_codex)
+    
+    target = code_objects[0]["raw"].split(":")[1].strip()
+    
+    base_name = os.path.basename(path)
+    name = os.path.splitext(base_name)[0]
+    
+    emitter.emit(compiled_codex, name, target)
+    return compiled_codex

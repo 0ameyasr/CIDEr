@@ -84,6 +84,11 @@ def intent_is_missing(uid: int, ln: int):
     )
 
 
+def compilation_error(msg: str):
+    """C-000/ERR-000: Raise a codex compilation error."""
+    __err(f"[C-000/ERR-000] Block codex compilation error: {msg}")
+
+
 # =====================
 # Warnings
 # =====================
