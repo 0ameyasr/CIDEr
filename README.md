@@ -1,2 +1,2 @@
 # CIDEr
-Implementation of CIDEr (Cascaded Integrated Development Environment Script) for usage in CIDE programming environments.
+Implementation of CIDEr (Cascaded Intent DEvelopment Script), an intentful programming DSL.
